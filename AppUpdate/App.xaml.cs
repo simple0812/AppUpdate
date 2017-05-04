@@ -7,6 +7,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -30,6 +31,58 @@ namespace AppUpdate
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+        }
+
+        protected override void OnFileActivated(FileActivatedEventArgs e)
+        {
+            Frame rootFrame = CreateRootFrame();
+
+            if (rootFrame.Content == null)
+            {
+                if (!rootFrame.Navigate(typeof(MainPage)))
+                {
+                    throw new Exception("Failed to create initial page");
+                }
+            }
+
+            var p = rootFrame.Content as MainPage;
+            Window.Current.Activate();
+        }
+
+        protected override void OnActivated(IActivatedEventArgs e)
+        {
+            if (e.Kind == ActivationKind.Protocol)
+            {
+                Frame rootFrame = CreateRootFrame();
+
+                if (rootFrame.Content == null)
+                {
+                    if (!rootFrame.Navigate(typeof(MainPage)))
+                    {
+                        throw new Exception("Failed to create initial page");
+                    }
+                }
+
+                var p = rootFrame.Content as MainPage;
+                Window.Current.Activate();
+            }
+        }
+
+        private Frame CreateRootFrame()
+        {
+            Frame rootFrame = Window.Current.Content as Frame;
+
+            if (rootFrame == null)
+            {
+                rootFrame = new Frame();
+
+                rootFrame.Language = Windows.Globalization.ApplicationLanguages.Languages[0];
+                rootFrame.NavigationFailed += OnNavigationFailed;
+
+                Window.Current.Content = rootFrame;
+            }
+
+            return rootFrame;
         }
 
         /// <summary>
@@ -76,6 +129,8 @@ namespace AppUpdate
                 }
                 // 确保当前窗口处于活动状态
                 Window.Current.Activate();
+                ApplicationData.Current.LocalSettings.Values["PackageLocation"] = "";
+                ApplicationData.Current.LocalSettings.Values["PackageStatus"] = "";
             }
         }
 

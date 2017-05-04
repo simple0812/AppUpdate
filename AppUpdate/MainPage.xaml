@@ -8,6 +8,9 @@
     mc:Ignorable="d">
 
     <StackPanel Padding="50" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock x:Name="txt"></TextBlock>
+        <TextBlock x:Name="txt"></TextBlock>
+        <TextBlock x:Name="txtLocation"></TextBlock>
+        <TextBlock x:Name="txtStatus"></TextBlock>
+        <Frame x:Name="ScenarioFrame" Margin="0,5,0,0" RelativePanel.AlignTopWithPanel="True" RelativePanel.Above="StatusPanel" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignLeftWithPanel="True"/>
     </StackPanel>
 </Page>

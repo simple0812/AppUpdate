@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.AppService;
+using Windows.ApplicationModel.Background;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -29,9 +32,35 @@ namespace DashboardApp
         public App()
         {
             this.InitializeComponent();
+            this.Construct();
             this.Suspending += OnSuspending;
         }
 
+        public static AppServiceConnection Connection = null;
+        BackgroundTaskDeferral appServiceDeferral = null;
+
+
+        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+            base.OnBackgroundActivated(args);
+            if (args.TaskInstance.TriggerDetails is AppServiceTriggerDetails)
+            {
+                appServiceDeferral = args.TaskInstance.GetDeferral();
+                args.TaskInstance.Canceled += OnTaskCanceled; // Associate a cancellation handler with the background task.
+
+                AppServiceTriggerDetails details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
+                Connection = details.AppServiceConnection;
+            }
+        }
+
+        private void OnTaskCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
+        {
+            if (this.appServiceDeferral != null)
+            {
+                // Complete the service deferral.
+                this.appServiceDeferral.Complete();
+            }
+        }
         /// <summary>
         /// 在应用程序由最终用户正常启动时进行调用。
         /// 将在启动应用程序以打开特定文件等情况下使用。
@@ -102,5 +131,7 @@ namespace DashboardApp
             //TODO: 保存应用程序状态并停止任何后台活动
             deferral.Complete();
         }
+
+        partial void Construct();
     }
 }

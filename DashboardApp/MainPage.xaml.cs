@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -27,12 +32,27 @@ namespace DashboardApp
         public MainPage()
         {
             this.InitializeComponent();
+            this.Loaded += MainPage_Loaded;
         }
 
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
 
         private AppServiceConnection updaterService;
         private async void UIElement_OnTapped(object sender, RoutedEventArgs e)
         {
+
+            var uri = new Uri("appupdatex://xx");
+
+            // Launch the URI.
+            var success = await Launcher.LaunchUriAsync(uri);
+            if (!success)
+            {
+                txtOutput.Text = "AppUpdate can not startup" ;
+                return;
+            };
+
             if (this.updaterService == null)
             {
                 this.updaterService = new AppServiceConnection();
@@ -73,5 +93,50 @@ namespace DashboardApp
             }
 
         }
+
+        private async void BtnStart_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            var uri = new Uri("appupdatex://xx");
+
+            // Launch the URI.
+            bool success = await Launcher.LaunchUriAsync(uri);
+            if (success)
+            {
+                txtOutput.Text = "URI launch success";
+            }
+            else
+            {
+                txtOutput.Text = "URI launch failed";
+            }
+        }
+
+        private async void BtnPipe_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            try
+            {
+                // Make sure the BackgroundProcess is in your AppX folder, if not rebuild the solution
+                await Windows.ApplicationModel.FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            }
+            catch (Exception)
+            {
+                MessageDialog dialog = new MessageDialog("Rebuild the solution and make sure the BackgroundProcess is in your AppX folder");
+                await dialog.ShowAsync();
+            }
+        }
+
+        private async void BtnSend_OnTapped(object sender, RoutedEventArgs e)
+        {
+            
+            if (App.Connection != null)
+            {
+                ValueSet valueSet = new ValueSet();
+                valueSet.Add("request", txtVersion.Text);
+
+                AppServiceResponse response = await App.Connection.SendMessageAsync(valueSet);
+                txtOutput.Text = "Received response: " + response.Message["response"] as string;
+            }
+        }
+
+      
     }
 }

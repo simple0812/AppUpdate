@@ -29,6 +29,19 @@
         <uap:Extension Category="windows.appService" EntryPoint="AppUpdaterService.BackGroundUpdaterTask">
           <uap:AppService Name="net.hoekstraonline.appupdater" />
         </uap:Extension>
+        <uap:Extension Category="windows.protocol" >
+          <uap:Protocol Name="appupdatex"  DesiredView="useLess">
+            <uap:Logo>Assets\StoreLogo.png</uap:Logo>
+            <uap:DisplayName>AppUpdate</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name=".appupdatex" DesiredView="useLess">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.appupdatex</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
       </Extensions>
     </Application>
   </Applications>

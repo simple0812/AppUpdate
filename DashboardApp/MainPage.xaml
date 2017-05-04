@@ -9,7 +9,15 @@
 
     <StackPanel Padding="50" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <TextBox Header="版本号7" x:Name="txtVersion"></TextBox>
-        <Button Content="update" x:Name="btn" Tapped="UIElement_OnTapped"></Button>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="startup" x:Name="btnStart"  Tapped="BtnStart_OnTapped"></Button>
+            <Button Content="update" x:Name="btn" Tapped="UIElement_OnTapped"></Button>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Launch Background Process" x:Name="btnPipe" Tapped="BtnPipe_OnTapped"></Button>
+            <Button Content="send" x:Name="btnSend" Tapped="BtnSend_OnTapped"></Button>
+
+        </StackPanel>
         <TextBlock x:Name="txtOutput"></TextBlock>
             <TextBlock TextWrapping="Wrap">1.添加windows runtime component项目AppUpdaterService，新建BackGroundUpdaterTask类</TextBlock>
         <TextBlock>2.添加uwp空白项目，添加对AppUpdaterService的应用，修改package.appxmanifest

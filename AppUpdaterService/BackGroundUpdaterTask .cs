@@ -8,6 +8,7 @@ using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
 using Windows.Foundation.Collections;
 using Windows.Management.Deployment;
+using Windows.Storage;
 
 namespace AppUpdaterService
 {
@@ -18,6 +19,7 @@ namespace AppUpdaterService
 
         public void Run(IBackgroundTaskInstance taskInstance)
         {
+           
             //Take a service deferral so the service isn't terminated
             serviceDeferral = taskInstance.GetDeferral();
             taskInstance.Canceled += OnTaskCanceled;
@@ -38,7 +40,6 @@ namespace AppUpdaterService
 
         async void OnRequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
-            Debug.Write("........");
             //Get a deferral so we can use an awaitable API to respond to the message
             var messageDeferral = args.GetDeferral();
 
@@ -49,21 +50,27 @@ namespace AppUpdaterService
             {
                 string packageFamilyName = message["PackageFamilyName"] as string;
                 string packageLocation = message["PackageLocation"] as string;
+                ApplicationData.Current.LocalSettings.Values["PackageLocation"] = packageLocation;
+                ApplicationData.Current.LocalSettings.Values["PackageStatus"] = "start update";
+
                 PackageManager packagemanager = new PackageManager();
                 var x =
                     await
                         packagemanager.UpdatePackageAsync(new Uri(packageLocation), null,
                             DeploymentOptions.ForceApplicationShutdown);
 
-                Debug.Write(x.ErrorText + "," + x.ActivityId.ToString());
+                ApplicationData.Current.LocalSettings.Values["PackageStatus"] = x.ErrorText + "," +
+                                                                                x.ActivityId.ToString();
                 //Don't need to send anything back since the app is killed during updating but you might want this if you ask to update another app instead
                 //of yourself.
 
 //                returnData.Add("Status", "OK");
 //                await args.Request.SendResponseAsync(returnData);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                ApplicationData.Current.LocalSettings.Values["PackageStatus"] = e.Message;
+                Debug.WriteLine(e.Message);
                 //
             }
             finally
