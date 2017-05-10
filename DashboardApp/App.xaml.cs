@@ -50,7 +50,13 @@ namespace DashboardApp
 
                 AppServiceTriggerDetails details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
                 Connection = details.AppServiceConnection;
+                Connection.ServiceClosed += Connection_ServiceClosed;
             }
+        }
+
+        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            Debug.WriteLine("service closed");
         }
 
         private void OnTaskCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)

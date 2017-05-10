@@ -112,6 +112,12 @@ namespace DashboardApp
 
         private async void BtnPipe_OnTapped(object sender, TappedRoutedEventArgs e)
         {
+            if (App.Connection != null)
+            {
+                Debug.WriteLine("app is connected");
+                return;
+            }
+
             try
             {
                 // Make sure the BackgroundProcess is in your AppX folder, if not rebuild the solution
@@ -119,20 +125,37 @@ namespace DashboardApp
             }
             catch (Exception)
             {
-                MessageDialog dialog = new MessageDialog("Rebuild the solution and make sure the BackgroundProcess is in your AppX folder");
+                var dialog = new MessageDialog("Rebuild the solution and make sure the BackgroundProcess is in your AppX folder");
                 await dialog.ShowAsync();
             }
         }
 
         private async void BtnSend_OnTapped(object sender, RoutedEventArgs e)
         {
-            
             if (App.Connection != null)
             {
                 ValueSet valueSet = new ValueSet();
                 valueSet.Add("request", txtVersion.Text);
 
                 AppServiceResponse response = await App.Connection.SendMessageAsync(valueSet);
+                Debug.WriteLine(response.Status);
+
+//                if (response.Status == AppServiceResponseStatus.Failure || response.Status == AppServiceResponseStatus.RemoteSystemUnavailable)
+//                {
+//                    App.Connection.Dispose();
+//                    App.Connection = null;
+//                    txtOutput.Text = "connenct is dispose";
+//                    return;
+//                }
+
+                if ( response.Message == null)
+                {
+                    txtOutput.Text = "Received response is empty";
+                    return;
+                }
+
+               
+
                 txtOutput.Text = "Received response: " + response.Message["response"] as string;
             }
         }

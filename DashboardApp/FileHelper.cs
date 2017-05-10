@@ -29,6 +29,8 @@ namespace DashboardApp
             var sw = new StreamWriter(new FileStream(handle, FileAccess.Write), Encoding.UTF8);
             sw.WriteLine("Hello from AppContainer");
             sw.Flush();
+
         }
+
     }
 }

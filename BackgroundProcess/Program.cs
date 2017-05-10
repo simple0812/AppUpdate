@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.ApplicationModel.AppService;
+using System.Management;
+using System.Runtime.InteropServices;
 
 namespace BackgroundProcess
 {
@@ -17,13 +19,18 @@ namespace BackgroundProcess
         /// </summary>
         static void Main(string[] args)
         {
+//            ConsoleHelper.hideConsole(Console.Title);
             Thread appServiceThread = new Thread(new ThreadStart(ThreadProc));
             appServiceThread.Start();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("*****************************");
             Console.WriteLine("**** Classic desktop app ****");
             Console.WriteLine("*****************************");
-            Console.ReadLine();
+
+            while (true)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         /// <summary>
@@ -80,12 +87,33 @@ namespace BackgroundProcess
             if (key == "request")
             {
                 ValueSet valueSet = new ValueSet();
-                valueSet.Add("response", value.ToUpper());
+                valueSet.Add("response", value.ToUpper() + "," + GetMacAddr());
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Sending response: '{0}'", value.ToUpper());
+                Console.WriteLine("Sending response: '{0}'", value.ToUpper() + "," + GetMacAddr());
                 Console.WriteLine();
                 args.Request.SendResponseAsync(valueSet).Completed += delegate { };
             }
+        }
+
+        public static string GetMacAddr()
+        {
+            string mac = "";
+            var mc = new ManagementClass("Win32_NetworkAdapterConfiguration");
+            var moc = mc.GetInstances();
+
+            foreach (var o in moc)
+            {
+                var mo = (ManagementObject) o;
+                if ((bool)mo["IPEnabled"])
+                {
+                    if (!string.IsNullOrEmpty(mo["MacAddress"].ToString()))
+                    {
+                        mac = mo["MacAddress"].ToString();
+                    }
+                }
+            }
+
+            return mac;
         }
     }
 }
